@@ -16,9 +16,9 @@ end
 @static Sys.iswindows() ?
 	(Sys.WORD_SIZE == 64 ? (const libgdal = "gdal_w64") : (const libgdal = "gdal_w32")) : 
 	(
-		Sys.isapple() ? libgdal = split(readlines(pipeline(`otool -L $gmtlib`, `grep libgdal`))[1])[1] :
+		Sys.isapple() ? (const libgdal = split(readlines(pipeline(`otool -L $gmtlib`, `grep libgdal`))[1])[1]) :
 		(
-		    Sys.isunix() ? libgdal = split(readlines(pipeline(`ldd $gmtlib`, `grep libgdal`))[1])[3] :
+		    Sys.isunix() ? (const libgdal = split(readlines(pipeline(`ldd $gmtlib`, `grep libgdal`))[1])[3]) :
 			error("Don't know how to install this package in this OS.")
 		)
 	)
