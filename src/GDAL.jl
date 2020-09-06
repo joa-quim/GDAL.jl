@@ -1,11 +1,19 @@
 module GDAL
 
-using PROJ_jll
-using GDAL_jll
 using MozillaCACerts_jll
 using CEnum
 
 const Ctm = Base.Libc.TmStruct
+
+@static Sys.iswindows() ?
+	(Sys.WORD_SIZE == 64 ? (const libgdal = "gdal_w64") : (const libnetcdf = "gdal_w32")) : 
+	(
+		@static Sys.islinux() ? libgdal = split(readlines(pipeline(`ldd $s`, `grep libgdal`))[1])[3] :
+		(
+			Sys.isapple() ? libgdal = split(readlines(pipeline(`otool -L $s`, `grep libgdal`))[1])[1] :
+			libgdal = "libgdal"		# Default for other unixs
+		)
+    )
 
 include("common.jl")
 
@@ -42,15 +50,15 @@ function __init__()
     GDALVERSION[] = VersionNumber(versionstring)
 
     # set GDAL_DATA location, this overrides setting the environment variable
-    GDAL_DATA[] = joinpath(GDAL_jll.artifact_dir, "share", "gdal")
-    cplsetconfigoption("GDAL_DATA", GDAL_DATA[])
+    #GDAL_DATA[] = joinpath(GDAL_jll.artifact_dir, "share", "gdal")
+    #cplsetconfigoption("GDAL_DATA", GDAL_DATA[])
 
     # set path to CA certificates
     cplsetconfigoption("CURL_CA_BUNDLE", cacert)
 
     # set PROJ_LIB location, this overrides setting the environment variable
-    PROJ_LIB[] = joinpath(PROJ_jll.artifact_dir, "share", "proj")
-    osrsetprojsearchpaths([PROJ_LIB[]])
+    #PROJ_LIB[] = joinpath(PROJ_jll.artifact_dir, "share", "proj")
+    #osrsetprojsearchpaths([PROJ_LIB[]])
 end
 
 end # module
