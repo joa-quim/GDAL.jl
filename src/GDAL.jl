@@ -5,15 +5,23 @@ using CEnum
 
 const Ctm = Base.Libc.TmStruct
 
+# Fish the binary dependency via GMT lib (except on Windows where we know it in advance)
+const gmtlib = Ref{String}()
+try
+	gmtlib[] = haskey(ENV,"GMT_LIBRARY") ?
+		ENV["GMT_LIBRARY"] : string(chop(read(`gmt --show-library`, String)))
+catch
+	error("This package can only be installed in systems that have GMT")
+end
 @static Sys.iswindows() ?
-	(Sys.WORD_SIZE == 64 ? (const libgdal = "gdal_w64") : (const libnetcdf = "gdal_w32")) : 
+	(Sys.WORD_SIZE == 64 ? (const libgdal = "gdal_w64") : (const libgdal = "gdal_w32")) : 
 	(
-		@static Sys.islinux() ? libgdal = split(readlines(pipeline(`ldd $s`, `grep libgdal`))[1])[3] :
+		Sys.isapple() ? libgdal = split(readlines(pipeline(`otool -L $gmtlib`, `grep libgdal`))[1])[1] :
 		(
-			Sys.isapple() ? libgdal = split(readlines(pipeline(`otool -L $s`, `grep libgdal`))[1])[1] :
-			libgdal = "libgdal"		# Default for other unixs
+		    Sys.isunix() ? libgdal = split(readlines(pipeline(`ldd $gmtlib`, `grep libgdal`))[1])[3] :
+			error("Don't know how to install this package in this OS.")
 		)
-    )
+	)
 
 include("common.jl")
 
