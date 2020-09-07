@@ -9,10 +9,25 @@ Other packages can build on top of this to provide a more Julian user experience
 
 *Most users will want to use [ArchGDAL.jl](https://github.com/yeesian/ArchGDAL.jl) instead of using GDAL.jl directly.*
 
+# WARNING
+
+This version relies on having [GMT](https://github.com/GenericMappingTools/GMT.jl) installed and will use it to find the system libraries
+needed for this package. This has the advantage of using a gdal build with more drivers (specially on Windows) and saving you disk space.
+However, being a fork it may risk to go out of sync with time.
+
+It would be nice if this solution could be integrated in the officially registered package as an install option but atm I don't know
+how to implement that.
+
+See also same solution for:
+
+- [LibGEOS](https://github.com/joa-quim/LibGEOS.jl)
+- [NetCDF](https://github.com/joa-quim/NetCDF.jl)
+- [Proj4](https://github.com/joa-quim/Proj4.jl)
+
 ## Installation
-This package is registered, so add it using `Pkg`. This will also download GDAL binaries created by  [Yggdrasil](https://github.com/JuliaPackaging/Yggdrasil/tree/master/G/GDAL).
+
 ```
-pkg> add GDAL
+pkg> add https://github.com/joa-quim/GDAL.jl
 ```
 To test if it is installed correctly, use:
 ```
